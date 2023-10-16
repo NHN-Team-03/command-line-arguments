@@ -83,11 +83,7 @@ include::src/main/java/com/nhnacademy/cli/ArgumentOption.java[lines=8..19,indent
 
 [source, java]
 ----
-Option logfile = Option.builder("logfile")
-                        .argName("file")
-                        .hasArg()
-                        .desc("use given file for log")
-                        .build();
+include::src/main/java/com/nhnacademy/cli/ArgumentOption.java[lines=11..18,indent=0]
 ----
 
 {empty} +
