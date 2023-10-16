@@ -1,0 +1,385 @@
+= Command Line Arguments
+
+== Command Line Arguments
+Java 응용 프로그램은 명령줄에서 여러 인수를 받아들일 수 있고, 이를 통해 사용자는 응용 프로그램이 시작될 때 구성 정보를 지정할 수 있다.
+
+[source]
+----
+java Sort friends.txt
+----
+
+애플리케이션이 시작되면 런타임 시스템은 문자열 배열을 통해 애플리케이션의 main 메소드에 명령줄 인수를 전달한다. 이전 예제에서 단일 문자열 frients.txt를 포함하고 있는 배열을 Sort 애플리케이션의 command-line arguments로 전달해 준다.
+
+=== 연습 1. 명령줄 인수 출력
+이 Echo 예제는 각 명령줄 인수를 한 줄씩 표시한다.
+
+[source, java]
+----
+include::src/exam01/Echo.java[tag=Echo]
+----
+
+실행 방법
+[source]
+----
+java Echo NHN Academy Back-End
+NHN
+Academy
+Back-End
+----
+
+공백 문자가 명령줄 인수를 구분하기 때문에 단일 인수로 해석하려면 사용자가 따옴표로 묶어 결합해야 한다.
+
+[source]
+----
+java Echo "NHN Academy Back-End"
+NHN Academy Back-End
+----
+
+=== 연습 2. 명령줄에서의 숫자 인수 구문 분석
+
+[source, java]
+----
+include::src/exam02/Exam02.java[tag=Exam02]
+----
+
+=== 명령줄 인수 구문 분석 라이브러리
+
+.빌더형(Builder Style)
+* 빌더형은 객체를 생성하고 명령줄에서 사용 가능한 인수들을 객체에 추가하여 구문 분석에 필요한 인수들의 묶음을 만드는 것이다.
+
+.Apache Commons CLI
+* Apache Commons CLI 라이브러리는 프로그램에 전달된 명령줄 옵션을 구문 분석하기 위한 API를 제공한다. 또한 명령줄 도구에 사용할 수 있는 옵션을 자세히 설명하는 도움말 메시지를 출력할 수도 있다.
+** Boolean Option
+** Argument Option
+
+=== 부울(boolean) 옵션 만들기
+명령줄에 해당 옵션을 추가함으로써 기능을 추가하거나 제거(기능 동작이 기본이 경우)할 수 있다.
+[source]
+----
+// create Options object
+Options options = new Options();
+
+// add t option
+options.addOption("v", "version", false, "print the version");
+----
+
+addOption 메소드에는 두 가지 매개 변수가 있다 . 첫 번째 매개변수는 String 타입으로 옵션을 나타낸다. 두 번째 매개변수는 옵션에 대한 설명이다. 이 설명은 응용 프로그램의 사용법 보여 주기등에 사용된다.
+
+=== 인수 옵션 만들기
+옵션으로 파일을 지정하거나 이름을 변경하거나 등의 추가적인 정보가 필요한 경우에 사용된다.
+[source]
+----
+Options options = new Options();
+
+//add logfile option
+Option logfile = Option.builder("logfile")
+                       .argName("file")
+                       .hasArg()
+                       .desc("use given file for log")
+                       .build();
+options.addOption(logfile);
+----
+인수를 갖는 옵션은 Option 클래스의 빌더를 이용해 생성 가능하다. Option 클래스의 정적 메소드 builder를 이용해 빌더 객체를 생성하고, 여기에 필요한 정보들을 선택적으로 설정하여 원하는 옵션을 생성할 수 있다.
+
+=== 명령줄 인수 구문 분석
+CommandLineParser의 parse 메소드는 명령줄 인수를 구문 분석하는 데 사용됩니다. CommandLineParser 인터페이스 구현은 여러 가지가 있을 수 있으며 권장되는 것 중 하나는 DefaultParser입니다.
+
+[source]
+----
+CommandLineParser parser = new DefaultParser();
+CommandLine cmd = parser.parse(options, args);
+----
+
+=== 부울 옵션 확인하기
+hasOption 메소드는 String 타입의 매개 변수를 사용하여 해당 옵션이 있으면 true, 그렇지 않으면 false를 반환합니다.
+[source]
+----
+if (cmd.hasOption("a")) {
+                System.out.println("-a : a 옵션이 추가되어 있습니다.");
+            }
+----
+
+=== 인수 값 가져오기
+[source]
+----
+if (cmd.hasOption("A")) {
+                System.out.println(cmd.getOptionValue("A") + "을 추가합니다.");
+            }
+----
+
+=== 부울형 옵션 정의하기
+[source]
+----
+Option help = new Option("help", "print this message");
+Option projecthelp = new Option("projecthelp", "print project help information");
+Option version = new Option("version", "print the version information and exit");
+Option quiet = new Option("quiet", "be extra quiet");
+Option verbose = new Option("verbose", "be extra verbose");
+Option debug = new Option("debug", "print debugging information");
+Option emacs = new Option("emacs",
+                           "produce logging information without adornments");
+----
+
+.addOption method
+* addOption(Option opt)
+* addOption(String opt, boolean hasArg, String description)
+* addOption(String opt, String description)
+* addOption(String opt, String longOpt, boolean hasArg, String description)
+* addOptionGroup(OptionGroup group)
+
+=== 인수형 옵션 정의하기
+[source]
+----
+Option logfile   = Option.builder("logfile")
+                         .argName("file")
+                         .hasArg()
+                         .desc("use given file for log")
+                         .build();
+
+Option logger    = Option.builder("logger")
+                         .argName("classname")
+                         .hasArg()
+                         .desc("the class which it to perform logging")
+                         .build();
+
+Option listener  = Option.builder("listener")
+                         .argName("classname")
+                         .hasArg()
+                         .desc("add an instance of class as "
+                                + "a project listener")
+                         .build();
+
+Option buildfile = Option.builder("buildfile")
+                         .argName("file")
+                         .hasArg()
+                         .desc("use given buildfile")
+                         .build();
+
+Option find      = Option.builder("find")
+                         .argName("file")
+                         .hasArg()
+                         .desc("search for buildfile towards the "
+                                + "root of the filesystem and use it")
+                         .build();
+----
+
+=== Java Property Option 정의하기
+[source]
+----
+Option property  = Option.builder("D")
+                   .hasArgs()
+                   .valueSeparator('=')
+                   .build();
+----
+* hasArgs를 적용할 경우, 한 개 이상의 인수 전달 가능
+* valueSeparator를 이용해 인수간 구분
+
+사용할 때는 아래와 같이 hasArgs()를 이용해 확인한 후 getValues() 또는 getValuesList()를 이용해 가져올 수 있다.
+[source]
+----
+try {
+            // parse the command line arguments
+            CommandLine line = parser.parse(options, args);
+
+            for(Option option : line.getOptions()) {
+                 if (option.hasArgs()) {
+                    System.out.println('-' + option.getOpt() + " : "
+                                       + Arrays.toString(option.getValues()));
+                } else if (option.hasArg()) {
+                    System.out.println('-' + option.getOpt() + " : "
+                                       + option.getValue());
+                } else {
+                    System.out.println('-' + option.getOpt());
+                }
+            }
+        } catch (ParseException e) {
+            System.out.println("Unexpected exception:" + e.getMessage());
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("cli", options);
+        }
+
+----
+
+=== Options 만들기
+[source]
+----
+Options options = new Options();
+
+options.addOption(help);
+options.addOption(projecthelp);
+options.addOption(version);
+options.addOption(quiet);
+options.addOption(verbose);
+options.addOption(debug);
+options.addOption(emacs);
+options.addOption(logfile);
+options.addOption(logger);
+options.addOption(listener);
+options.addOption(buildfile);
+options.addOption(find);
+options.addOption(property);
+----
+
+=== 명령줄 인수 구문 분석기 적용하기
+[source]
+----
+public static void main(String[] args) {
+    // create the parser
+    CommandLineParser parser = new DefaultParser();
+    try {
+        // parse the command line arguments
+        CommandLine line = parser.parse(options, args);
+    }
+    catch (ParseException exp) {
+        // oops, something went wrong
+        System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+    }
+}
+----
+
+=== 명령줄 쿼리
+[source]
+----
+// buildfile 인수가 전달되었습니까?
+if(line.hasOption("buildfile")) {
+    // 멤버 변수 초기화
+    this.buildfile = line.getOptionValue("buildfile");
+}
+----
+
+=== Usage와 Help
+CLI는 사용법 및 도움말 정보를 자동으로 생성하는 수단도 제공합니다. 이것은 HelpFormatter 클래스로 제공 가능합니다.
+[source]
+----
+// 자동으로 도움말 문 생성
+HelpFormatter formatter = new HelpFormatter();
+formatter.printHelp("ant", options);
+----
+
+[source]
+----
+usage: ant
+-D <property=value>     use value for given property
+-buildfile <file>       use given buildfile
+-debug                  print debugging information
+-emacs                  produce logging information without adornments
+-file <file>            search for buildfile towards the root of the
+                        filesystem and use it
+-help                   print this message
+-listener <classname>   add an instance of class as a project listener
+-logger <classname>     the class which it to perform logging
+-projecthelp            print project help information
+-quiet                  be extra quiet
+-verbose                be extra verbose
+-version                print the version information and exit
+----
+
+=== 어노테이션형(Annotation style)
+어노테이션형은 자바의 어노테이션을 이용해 옵션을 정의하는 방법을 말합니다.
+
+=== JCommander
+JCommander는 명령줄 매개변수를 쉽게 구문 분석할 수 있는 매우 작은 Java 프레임워크입니다. 옵션에 대한 설명으로 필드에 어노테이션을 추가합니다.
+
+[source, java]
+----
+import com.beust.jcommander.Parameter;
+
+public class Options {
+  @Parameter
+  private List<String> parameters = new ArrayList<>();
+
+  @Parameter(names = { "-log", "-verbose" },
+             description = "Level of verbosity")
+  private Integer verbose = 1;
+
+  @Parameter(names = "-groups",
+             description = "Comma-separated list of group names to be run")
+  private String groups;
+
+  @Parameter(names = "-debug",
+             description = "Debug mode")
+  private boolean debug = false;
+}
+----
+
+구문 분석 결과는 어노테이션을 이용해 정의한 옵션 클래스 자체의 인스턴스에서 라이브러리에 의해 작성됩니다.
+
+[source]
+----
+Options options = new Options();
+String[] argv = { "-log", "2", "-groups", "unit" };
+JCommander.newBuilder()
+  .addObject(options)
+  .build()
+  .parse(argv);
+
+Assert.assertEquals(options.verbose.intValue(), 2);
+----
+
+=== 명령줄 인수 구문 분석 비교표
+
+[cols="2,2,2,2,1,2"]
+|===
+^s|Library
+^s|License
+^s|Type
+^s|Liveness
+^s|Min JDK
+^s|Artifact
+
+|https://github.com/kohsuke/args4j[Args4J]
+^|MIT
+^|Annotation
+|Medium (10 months)
+^|6
+| https://mvnrepository.com/artifact/args4j/args4j[args4j]
+
+|https://github.com/cbeust/jcommander[JCommander]
+^|Apache 2.0
+^|Annotation
+|High (20 days)
+^|7
+|https://mvnrepository.com/artifact/com.beust/jcommander[jcommander]
+
+|https://commons.apache.org/proper/commons-cli/[Apache Commons CLI]
+^|Apache 2.0
+^|Builder
+|Medium (8 months)
+^|5
+|https://mvnrepository.com/artifact/commons-cli/commons-cli[commons-cli]
+
+|https://github.com/purcell/jargs[JArgs]
+^|BSD-3
+^|Builder
+|Very low (5 years)
+^|5
+|?
+
+|https://github.com/jopt-simple/jopt-simple[JOptSimple]
+^|MIT
+^|Builder
+|Medium (3 months)
+^|8
+|https://mvnrepository.com/artifact/net.sf.jopt-simple/jopt-simple[jopt-simple]
+
+|https://github.com/lexicalscope/jewelcli[JewelCLI]
+^|Apache 2.0
+^|Annotation
+|Very low (3 years)
+^|6
+|https://mvnrepository.com/artifact/com.lexicalscope.jewelcli/jewelcli[jewelcli]
+
+|https://github.com/remkop/picocli[PicoCLI]
+^|Apache 2.0
+^|Annotation
+|High (5 days)
+^|5
+|https://mvnrepository.com/artifact/info.picocli/picocli[picocli]
+|===
+
+* Library: 라이브러리 이름과 라이브러리 개발 사이트에 대한 링크를 알려줍니다.
+* License: 라이브러리가 개발된 소프트웨어 라이선스를 명시합니다.
+* Type: 이 라이브러리가 취하는 API 접근 방식입니다. 주석은 라이브러리가 Java 주석을 사용하여 명령줄 옵션을 문서화함을 의미합니다. 빌더는 사용자가 코드에서 명령줄 개체 모델을 능동적으로 빌드해야 함을 의미합니다.
+* Liveness: 이 라이브러리는 얼마나 살아 있습니까? 마지막 릴리스 또는 승인된 풀 요청은 언제였습니까? 오랫동안 변경되지 않은 라이브러리는 지원이나 버그 수정을 받을 가능성이 낮습니다.
+* Min JDK: 이 라이브러리를 사용하는 데 필요한 최소 JDK 버전입니다. 이전 JDK를 사용해야 하는 경우 이는 매우 중요할 수 있습니다.
+* Artifact: Maven 또는 Gradle과 같은 도구를 빌드하여 사용할 수 있는 아티팩트에 대한 링크입니다. Maven 기반 프로젝트에 jar 파일 라이브러리를 포함하는 것은 좋지 않을 수 있습니다.
