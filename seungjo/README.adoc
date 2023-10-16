@@ -1,0 +1,94 @@
+= Command Line Arguments
+
+- Java Application Program - 명령줄에서 여러 인수를 받아들일 수 있고, 이를 통해 사용자는 응용 프로그램이 시작될 때 구성 정보를 지정할 수 있음.
+
+- 아래의 예제에서 Sort는 명령줄에서 파일 이름을 받아들이고, 그 파일을 읽어서 정렬된 결과를 출력함.
+
+[source,shell]
+----
+java Sort friends.txt
+----
+
+== 명령줄 인수 출력
+
+[source, java]
+----
+include::src/main/java/com/nhnacademy/exam/Exam01.java[lines=3..9,indent=0]
+----
+
+- 공백 문자가 명령줄 인수를 구분
+- 단일 인수로 해석하려면 사용자가 따옴표로 묶어서 결합해줘야 함.
+
+[source, shell]
+----
+java Echo "NHN Academy Back-End"
+
+-> NHN Academy Back-End
+----
+
+== 명령줄 인수 구문 분석 라이브러리
+
+=== 빌더형 (Builder Style)
+* 객체를 생성하고 명령줄에서 사용 가능한 인수들을 객체에 추가
+* 구문 분석에 필요한 인수들의 묶음을 만드는 것
+
+=== Apache Commons CLI
+* 프로그램에 전달된 명령줄 옵션을 구문 분석하기 위한 API를 제공
+* 명령줄 도구에 사용할 수 있는 옵션을 자세히 설명하는 도움말 메시지를 출력할 수 있음
+
+* 옵션 만들기는 크게 2가지로 구분
+** Boolean Option
+** Argument Option
+{empty} +
+
+==== 부울 옵션 (Boolean Option)
+- 명령줄에 해당 옵션을 추가함으로써 기능을 추가하거나 제거할 수 있다.
+
+[source, java]
+----
+include::src/main/java/com/nhnacademy/cli/BooleanOption.java[lines=6..12,indent=0]
+----
+
+* addOption(opt, longOpt, hasArg, description)
+** opt : 옵션의 짧은 이름
+** longOpt : 옵션의 긴 이름
+** hasArg : 옵션에 인수가 있는지 여부
+** description : 옵션에 대한 설명
+
+**부울형 옵션 정의하기**
+
+* addOption(Option opt)
+* addOption(String opt, Boolean hasArg, String description)
+* addOption(String opt, String description)
+* addOption(String opt, String longOpt, Boolean hasArg, String description)
+* addOptionGroup(OptionGroup group)
+
+{empty} +
+
+==== 인수 옵션 (Argument Option)
+- 옵션에 값을 줄 수 있는 인수 옵션
+- 옵션으로 파일을 지정하거나 이름을 변경하거나 등의 추가적인 정보가 필요한 경우에 사용
+
+[source, java]
+----
+include::src/main/java/com/nhnacademy/cli/ArgumentOption.java[lines=8..19,indent=0]
+----
+
+* builder를 이용해 빌더 객체를 생성
+* argName : 인수의 이름
+* hasArg : 옵션에 인수가 있는지 여부
+* desc : 옵션에 대한 설명
+
+**인수형 옵션 정의하기**
+
+[source, java]
+----
+Option logfile = Option.builder("logfile")
+                        .argName("file")
+                        .hasArg()
+                        .desc("use given file for log")
+                        .build();
+----
+
+{empty} +
+
